@@ -1,0 +1,15 @@
+package main
+
+func main() {
+
+
+	//client := client.NewClient()
+	//
+	//oldpassword := "T7S7d95s"
+	//newpassword := "T7S7d954"
+	//connectionstring := "HOSTNAME=localhost;DATABASE=dojo;PORT=50000"
+	//username := "moayad"
+	//
+	//client.UpdatePassword(connectionstring,username,oldpassword,newpassword)
+	
+}

@@ -1,0 +1,136 @@
+//package db2se
+//
+//import (
+//	"encoding/json"
+//	"fmt"
+//	"github.com/hashicorp/errwrap"
+//	"time"
+//	"context"
+//	"github.com/hashicorp/vault/sdk/framework"
+//	"github.com/hashicorp/vault/sdk/logical"
+//)
+//
+//const (
+//	staticRolePath = "static-role/"
+//)
+//
+//// db2RoleEntry defines the data required
+//// for a Vault role to access and call the HashiCups
+//// token endpoints
+//type db2RoleEntry struct {
+//	Username string        `json:"username"`
+//	Password string        `json:"password"`
+//	TTL      time.Duration `json:"ttl"`
+//	MaxTTL   time.Duration `json:"max_ttl"`
+//}
+//
+//// toResponseData returns response data for a role
+//func (r *db2RoleEntry) toResponseData() map[string]interface{} {
+//	respData := map[string]interface{}{
+//		"ttl":      r.TTL.Seconds(),
+//		"max_ttl":  r.MaxTTL.Seconds(),
+//		"username": r.Username,
+//	}
+//	return respData
+//}
+//
+//// pathRole extends the Vault API with a `/role`
+//// endpoint for the backend. You can choose whether
+//// or not certain attributes should be displayed,
+//// required, and named. You can also define different
+//// path patterns to list all roles.
+//func pathRole(b *db2Backend) []*framework.Path {
+//	return []*framework.Path{
+//		{
+//			Pattern:         "static-role/" + framework.GenericNameRegex("name"),
+//			Fields:          map[string]*framework.FieldSchema{
+//				"username": {
+//					Type:        framework.TypeString,
+//					Description: "The username/logon name for the entry with which this role will be associated.",
+//				},
+//				"password": {
+//					Type:        framework.TypeString,
+//					Description: "The initial password to be used by the database user.",
+//				},
+//			},
+//			Operations:   map[logical.Operation]framework.OperationHandler{
+//				logical.ReadOperation: &framework.PathOperation{
+//					Callback: b.handleRead,
+//					Summary:  "Retrieve the secret from the map.",
+//				},
+//				logical.UpdateOperation: &framework.PathOperation{
+//					Callback: b.handleWrite,
+//					Summary:  "Store a secret at the specified location.",
+//				},
+//				logical.CreateOperation: &framework.PathOperation{
+//					Callback: b.handleWrite,
+//				},
+//				logical.DeleteOperation: &framework.PathOperation{
+//					Callback: b.handleDelete,
+//					Summary:  "Deletes the secret at the specified location.",
+//				},
+//			},
+//			HelpSynopsis:    pathRoleHelpSynopsis,
+//			HelpDescription: pathRoleHelpDescription,
+//		},
+//		{
+//			Pattern:         "role/?$",
+//			Operations:      map[logical.Operation]framework.OperationHandler{},
+//			HelpSynopsis:    pathRoleListHelpSynopsis,
+//			HelpDescription: pathRoleListHelpDescription,
+//		},
+//	}
+//}
+//
+//
+//func (b *db2Backend) handleWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+//	if req.ClientToken == "" {
+//		return nil, fmt.Errorf("client token empty")
+//	}
+//
+//	// Check to make sure that kv pairs provided
+//	if len(req.Data) == 0 {
+//		return nil, fmt.Errorf("data must be provided to store in secret")
+//	}
+//
+//	path := data.Get("path").(string)
+//
+//	// JSON encode the data
+//	buf, err := json.Marshal(req.Data)
+//	if err != nil {
+//		return nil, errwrap.Wrapf("json encoding failed: {{err}}", err)
+//	}
+//
+//	// Store kv pairs in map at specified path
+//	b.store[req.ClientToken+"/"+path] = buf
+//
+//	return nil, nil
+//}
+//
+//func (b *db2Backend) staticRole(ctx context.Context, s logical.Storage, roleName string) (*roleEntry, error) {
+//	entry, err := s.Get(ctx, staticRolePath+roleName)
+//	if err != nil {
+//		return nil, err
+//	}
+//	if entry == nil {
+//		return nil, nil
+//	}
+//
+//	var result roleEntry
+//	if err := entry.DecodeJSON(&result); err != nil {
+//		return nil, err
+//	}
+//
+//	return &result, nil
+//}
+//
+//const (
+//	pathRoleHelpSynopsis    = `Manages the Vault role for generating HashiCups tokens.`
+//	pathRoleHelpDescription = `
+//This path allows you to read and write roles used to generate HashiCups tokens.
+//You can configure a role to manage a user's token by setting the username field.
+//`
+//
+//	pathRoleListHelpSynopsis    = `List the existing roles in HashiCups backend`
+//	pathRoleListHelpDescription = `Roles will be listed by the role name.`
+//)
